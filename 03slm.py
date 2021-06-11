@@ -152,5 +152,12 @@ if __name__ == '__main__':
     check()
     label_image()
 
+    # usage
+    # python 03slm.py  --json  best_predictions2.json  --test  test0/
+    # python 03slm.py  --json  best_predictions.json  --test  test/
+    # python 03slm.py  --json  best_predictions2.json  --test  test/  --save save_test2/
+
+
+
 
 

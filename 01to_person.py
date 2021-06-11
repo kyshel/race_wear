@@ -201,7 +201,7 @@ def get_stacked_dict(submit_list):
     return stacked_dict
 
 
-def remove_overlapped(stacked_dict,overlapped_id = -1):
+def remove_overlapped(stacked_dict,overlapped_id):
     # remove  overlap, max_score, seems like iou threshold
     print('[]removing belt overlapped')
     for key, crops_list in stacked_dict.items():
@@ -212,7 +212,7 @@ def remove_overlapped(stacked_dict,overlapped_id = -1):
         for i, crop_info in enumerate(crops_list):
             # get belt_max_score
             if crop_info["category_id"] is overlapped_id:
-                is_overlap, overlaps_list = check_overlap_safebelt(crop_info, crops_list)
+                is_overlap, overlaps_list = check_overlap_by_id(crop_info, crops_list)
                 if is_overlap:
                     # print("cls_id,score,box: ", crop_info["category_id"], crop_info['score'], crop_info['bbox'],
                     #     [(crop['category_id'], crop['score'], crop['bbox']) for crop in overlaps_list])
@@ -284,7 +284,7 @@ def wear2person(stacked_dict):
         for i, crop_info in enumerate(crops_list):
             # print(crop_info)
             if crop_info["category_id"] in [0 , 1, 3]:  # no_person: 0guard 1yes_wear, 3no_wear
-                is_overlap, overlaps_list = check_overlap(crop_info, crops_list)
+                is_overlap, overlaps_list = check_overlap_man(crop_info, crops_list)
 
                 # select final person by IOU
                 if is_overlap:
@@ -416,10 +416,12 @@ if __name__ == '__main__':
     fp_json = opt.json
 
     crops_list = read_json(fp_json)
-    crops_list = cut_bigger(crops_list,threshold=0.2)
+    crops_list = cut_bigger(crops_list,threshold=0.2) # rm <= 0.2
     stacked_dict = get_stacked_dict(crops_list)
-    stacked_dict = remove_overlapped(stacked_dict,overlapped_id=0) # iou 0guard
-    stacked_dict = wear2person(stacked_dict)
+    # stacked_dict = remove_overlapped(stacked_dict,overlapped_id=0) # iou 0guard
+    # stacked_dict = remove_overlapped(stacked_dict, overlapped_id=1)  # iou 1yes
+    # stacked_dict = remove_overlapped(stacked_dict, overlapped_id=3)  # iou 3no
+    stacked_dict = wear2person(stacked_dict) # wear2person
     crops_list = rebuild_coco_from_stacked_dict(stacked_dict)
     make_json(fp_json,crops_list)
 
