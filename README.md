@@ -1,12 +1,14 @@
 # race_wear
 
-
-## submit
-- s3 0.71
-- s2 0.17
-```
+## basic info
 raw/train.tgz > train:val 0.8:0.2
 
-exp4_best_s_new900_78_predictions_4_submit
+## submit
+- s7 0.7415 remove man_score <= 0.5
+- s6 0.7463 
+- s3 0.71
+- s2 0.17
 
-```
+
+## info
+- s7 seems like overlapped iou do not affect result, remove overlapped man will decrease scpre

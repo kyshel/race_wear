@@ -1,10 +1,11 @@
 # make submit.json
 
-# notice: input.json must in current dir
+# todo: add cut_items(crops_list,cls_id,threshold)
+# match id
+# src 0guard 1yes 2man 3no
+# dst 0man 1guard 2yes 3no
 
 from _func import *
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--json', type=str, default='best_predictions.json', help='json file, need cooco format')
@@ -13,12 +14,16 @@ if __name__ == '__main__':
 
     crops_list = read_json(fp_json)
     crops_list = cut_bigger(crops_list,threshold=0.2) # rm <= 0.2
+    # crops_list = cut_items(crops_list,  2,  0.5 ) # 2man, 0.5threshold
+    crops_list = add_man_tag(crops_list)
     stacked_dict = get_stacked_dict(crops_list)
     # stacked_dict = remove_overlapped(stacked_dict,overlapped_id=0) # iou 0guard
     # stacked_dict = remove_overlapped(stacked_dict, overlapped_id=1)  # iou 1yes
     # stacked_dict = remove_overlapped(stacked_dict, overlapped_id=3)  # iou 3no
     stacked_dict = wear2person(stacked_dict) # wear2person
     crops_list = rebuild_coco_from_stacked_dict(stacked_dict)
+    crops_list = label_all_man(crops_list)
+    crops_list = remove_man_tag(crops_list)
     make_json(fp_json,crops_list,stacked_dict)
 
 

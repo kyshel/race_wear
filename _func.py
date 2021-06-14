@@ -3,7 +3,7 @@
 # notice: input.json must in current dir
 
 
-
+import copy
 import json
 import  argparse
 
@@ -189,6 +189,19 @@ def cut_bigger(submit_list,threshold = 0.2):
 
     return  cutted_list
 
+def cut_items(crops_list,cls_id,threshold):
+    # remove items that cls_id is given and threshold <= given
+    cutted_list = []
+    for i,val in enumerate(crops_list):
+        if (val['category_id'] == cls_id) and (val['score'] <= threshold):
+            pass
+        else:
+            cutted_list += [val]
+
+    return cutted_list
+
+
+
 def get_stacked_dict(submit_list):
     # make stacked_dict
     stacked_dict = {}
@@ -283,7 +296,7 @@ def wear2person(stacked_dict):
         # print(key)
         for i, crop_info in enumerate(crops_list):
             # print(crop_info)
-            if crop_info["category_id"] in [0 , 1, 3]:  # no_person: 0guard 1yes_wear, 3no_wear
+            if crop_info["category_id"] in [0 , 1, 3]:  # obj: 0guard 1yes_wear, 3no_wear
                 is_overlap, overlaps_list = check_overlap_man(crop_info, crops_list)
 
                 # select final person by IOU
@@ -310,9 +323,10 @@ def wear2person(stacked_dict):
                             pass
                         else:
                             max_area = area
-                            max_bbox = bb2
+                            max_bbox = bb2   # choose max_area overlapped box
 
                     stacked_dict[key][i]['bbox'] = max_bbox
+
                     # print("selected max_bbox",max_bbox)
 
                 else:  # remove not overlapped
@@ -327,6 +341,51 @@ def rebuild_coco_from_stacked_dict(stacked_dict):
         for i, crop_info in enumerate(crops_list):
             final_list += [crop_info]
     return final_list
+
+
+
+
+
+def add_man_tag(crops_list):
+    want_list = []
+    for i, val in enumerate(crops_list):
+        if val['category_id'] == 2 : # 2man
+            val['is_tagged'] = False
+
+        want_list += [val]
+
+    return want_list
+    pass
+
+def remove_man_tag(crops_list):
+    want_list = []
+    for i, val in enumerate(crops_list):
+        if val['category_id'] == 2:  # 2man
+            val.pop('is_tagged', None)
+        want_list += [val]
+
+    return want_list
+    pass
+
+
+
+
+
+def label_all_man(crops_list):
+    want_list = []
+    new_crop = {}
+    for i, val in enumerate(crops_list):
+        if val['category_id'] == 2:  # 2man
+            if val['is_tagged'] == False:
+                new_crop = copy.deepcopy(val)
+                new_crop['category_id'] = 3  #3no
+                want_list += [new_crop]
+
+        want_list += [val]
+
+    return want_list
+    pass
+
 
 
 
@@ -408,11 +467,9 @@ def make_json(fp_json,final_list,stacked_dict):
     print('saved, check: ', fp_out)
 
 
-    # match id
-    # src 0guard 1yes 2man 3no
-    # dst 0man 1guard 2yes 3no
 
-# need : rm man < 0.5 (have miss)
+
+
 
 
 
