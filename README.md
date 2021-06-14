@@ -2,6 +2,7 @@
 
 
 ## submit
+- s3 0.71
 - s2 0.17
 ```
 raw/train.tgz > train:val 0.8:0.2

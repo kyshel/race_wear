@@ -41,7 +41,8 @@ def plot_one_box(x, im, color=(128, 128, 128), label=None, line_thickness=3,clas
     tl = line_thickness or round(0.002 * (im.shape[0] + im.shape[1]) / 2) + 1  # line/font thickness
     # c1, c2 = (int(x[0]), int(x[1])), (int(x[2]), int(x[3]))
     cv2.rectangle(im, (int(x[0]), int(x[1])), (int(x[2]), int(x[3])), color, thickness=tl, lineType=cv2.LINE_AA) # c1 changed!
-    x[0] = x[2] if class_id in [1,2] else x[0]  # for 14belt only
+    x[0] = x[2] if class_id in [1,3] else x[0]  # for 18wear, 1yes, 3no, to right-top
+    x[1] = x[3] if class_id in [0] else x[1]  # for 18wear, 0guard to left-down
     c1, c2 = (int(x[0]), int(x[1])), (int(x[2]), int(x[3]))
     if label:
         tf = max(tl - 1, 1)  # font thickness
@@ -147,7 +148,7 @@ if __name__ == '__main__':
     test_dir = opt.test
     fn_json_no_ext = os.path.splitext(os.path.basename(coco_fp))[0]
     save_dir= ( fn_json_no_ext + '/' if opt.save == '' else opt.save)
-    names = {0: 'ground', 1: 'guard', 2: 'safebelt', 3: 'sky'}
+    names = {0: 'guard', 1: 'yes', 2: 'man', 3: 'no'}
 
     check()
     label_image()
