@@ -243,6 +243,64 @@ def remove_overlapped(stacked_dict,overlapped_id):
         # print()
     return stacked_dict
 
+def remove_boxa_in_boxb(stacked_dict,overlapped_id,threshold_rm):
+    # remove  overlap, max_score, seems like iou threshold
+    print('[]removing belt overlapped')
+    for key, crops_list in stacked_dict.items():
+        # print(key)
+
+        # get belt_max_score
+        belt_max_score = 0
+        for i, crop_info in enumerate(crops_list):
+            # get belt_max_score
+            if crop_info["category_id"] is overlapped_id:
+                is_AinB, wrapper_box_list = check_boxa_in_boxb_by_id(crop_info, crops_list)
+                if is_AinB:
+                    if crop_info['score'] < threshold_rm:
+                        print(crop_info['image_id'], 'has AinB')
+                        stacked_dict[key].remove(crop_info)
+
+
+
+        # print(belt_max_score)
+        # print()
+    return stacked_dict
+
+def check_boxa_in_boxb_by_id(crop_info,crops_list):
+    found = 0
+    wrapper_box_list = []
+    is_AinB = False
+    crop_a_id = crop_info['category_id']
+
+    for crop_b in crops_list:
+        if crop_b['category_id'] is crop_a_id : # same cls
+            if is_boxa_in_boxb(crop_info["bbox"],crop_b["bbox"]):
+                wrapper_box_list += [crop_b]
+                found += 1
+
+    if found != 0:
+        # print('founded:' )
+        # print(wrapper_box_list)
+        is_AinB = True
+        # print(wrapper_box_list)
+
+    return is_AinB, wrapper_box_list
+
+
+
+def is_boxa_in_boxb(boxA,boxB):
+    # If top-left inner box corner is inside the bounding box
+    is_in = False
+    if boxB[0] < boxA[0] and boxB[1] < boxA[1]:
+        # If bottom-right inner box corner is inside the bounding box
+        if boxA[0] + boxA[2] <= boxB[0] + boxB[2] \
+                and boxA[1] + boxA[3] <= boxB[1] + boxB[3]:
+            is_in = True
+    else:
+        is_in = False
+
+    return  is_in
+
 def check_overlap_by_id(crop_info,crops_list):
     found = 0
     overlaps_list = []
@@ -327,8 +385,10 @@ def wear2person(stacked_dict):
                             max_area = area
                             max_bbox = bb2   # choose max_area overlapped box
                             max_area_index = num
-                    # overlaps_list[max_area_index]['is_tagged'] = True
+                    overlaps_list[max_area_index]['is_tagged'] = True
                     stacked_dict[key][i]['bbox'] = max_bbox
+
+                    # print(overlaps_list[max_area_index])
 
                     # print("selected max_bbox",max_bbox)
 
@@ -360,15 +420,7 @@ def add_man_tag(crops_list):
     return want_list
     pass
 
-def remove_man_tag(crops_list):
-    want_list = []
-    for i, val in enumerate(crops_list):
-        if val['category_id'] == 2:  # 2man
-            val.pop('is_tagged', None)
-        want_list += [val]
 
-    return want_list
-    pass
 
 
 
@@ -379,7 +431,7 @@ def label_all_man(crops_list):
     new_crop = {}
     for i, val in enumerate(crops_list):
         if val['category_id'] == 2:  # 2man
-            if val['is_tagged'] == False:
+            if 'is_tagged' not in val:
                 new_crop = copy.deepcopy(val)
                 new_crop['category_id'] = 3  #3no
                 want_list += [new_crop]
@@ -389,7 +441,15 @@ def label_all_man(crops_list):
     return want_list
     pass
 
+def remove_man_tag(crops_list):
+    want_list = []
+    for i, val in enumerate(crops_list):
+        if val['category_id'] == 2:  # 2man
+            val.pop('is_tagged', None)
+        want_list += [val]
 
+    return want_list
+    pass
 
 
 def make_json(fp_json,final_list,stacked_dict):
