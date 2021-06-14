@@ -314,7 +314,7 @@ def wear2person(stacked_dict):
                     max_score = 0
                     max_area_index = -1
                     max_bbox = [1, 2, 3, 4]
-                    for i, crop_dict2 in enumerate(overlaps_list) :
+                    for num, crop_dict2 in enumerate(overlaps_list) :
                         bb2 = crop_dict2['bbox']
 
                         iou, area = get_iou(bb1, bb2)
@@ -326,7 +326,7 @@ def wear2person(stacked_dict):
                         else:
                             max_area = area
                             max_bbox = bb2   # choose max_area overlapped box
-                            max_area_index = i
+                            max_area_index = num
                     # overlaps_list[max_area_index]['is_tagged'] = True
                     stacked_dict[key][i]['bbox'] = max_bbox
 
