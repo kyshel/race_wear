@@ -279,6 +279,7 @@ def check_overlap_man(crop_info,crops_list):
                 overlaps_list += [crop_b]
                 found += 1
 
+
     if found != 0:
         # print('founded:' )
         # print(overlaps_list)
@@ -296,7 +297,7 @@ def wear2person(stacked_dict):
         # print(key)
         for i, crop_info in enumerate(crops_list):
             # print(crop_info)
-            if crop_info["category_id"] in [0 , 1, 3]:  # obj: 0guard 1yes_wear, 3no_wear
+            if crop_info["category_id"] in [0, 1, 3]:  # obj: 0guard 1yes_wear, 3no_wear
                 is_overlap, overlaps_list = check_overlap_man(crop_info, crops_list)
 
                 # select final person by IOU
@@ -311,8 +312,9 @@ def wear2person(stacked_dict):
                     max_area = 0
                     max_iou = 0
                     max_score = 0
+                    max_area_index = -1
                     max_bbox = [1, 2, 3, 4]
-                    for crop_dict2 in overlaps_list:
+                    for i, crop_dict2 in enumerate(overlaps_list) :
                         bb2 = crop_dict2['bbox']
 
                         iou, area = get_iou(bb1, bb2)
@@ -324,7 +326,8 @@ def wear2person(stacked_dict):
                         else:
                             max_area = area
                             max_bbox = bb2   # choose max_area overlapped box
-
+                            max_area_index = i
+                    # overlaps_list[max_area_index]['is_tagged'] = True
                     stacked_dict[key][i]['bbox'] = max_bbox
 
                     # print("selected max_bbox",max_bbox)
@@ -394,7 +397,7 @@ def make_json(fp_json,final_list,stacked_dict):
 
     fn_json = os.path.basename(fp_json)
     fn_json_no_ext = os.path.splitext(fn_json)[0]
-    fn_out = fn_json_no_ext + '_2_overlap.json'
+    fn_out = fn_json_no_ext + '_2_maned.json'
     # make file that has orgin format
     with open(fn_out, 'w') as fp:
         json.dump(final_list, fp)

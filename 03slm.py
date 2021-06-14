@@ -134,6 +134,13 @@ def label_image():
         print('Warning! no_label_images  cnt: ', len(no_label_list),', details saved to: ',fp_txt)
     print('Labeled images have saved to:', save_dir)
 
+import os
+import glob
+
+def empty_dir(dir_name):
+    files = glob.glob(dir_name + '*') # dir name must has / at the end
+    for f in files:
+        os.remove(f)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -151,6 +158,7 @@ if __name__ == '__main__':
     names = {0: 'guard', 1: 'yes', 2: 'man', 3: 'no'}
 
     check()
+    empty_dir(save_dir)
     label_image()
 
     # usage
